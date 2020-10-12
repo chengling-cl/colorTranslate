@@ -1,0 +1,96 @@
+<html>
+  <head>
+    <title>HSV颜色转化为RGB</title>
+    <meta charset="utf-8"/>
+    <style type="text/css">
+      :root {
+        --root-font-size: 14px;
+      }
+      #show-color, #color-panel {
+        display: inline-block;
+      }
+      #color-panel {
+        display: inline-block;
+        margin: 0 1em;
+        content: ' ';
+        width: 2em;
+        height: 1em;
+      }
+      #hsv-input-panel input {
+        width: 10em;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h3>HSV输入颜色信息（H:0-360, s:0-1, v:0-1）：</h3>
+      <section id="hsv-input-panel">
+        <div><label>H：</label><input value=0 name="h" type="number" max=360 min=0 /></div>
+        <div><label>S：</label><input value=0 name="s" type="number" max=1 min=0 /></div>
+        <div><label>V：</label><input value=0 name="v" type="number" max=1 min=0 /></div>
+      </section>
+      <p><span id="show-color">颜色值显示</span><span id="color-panel"> </span></p>
+      <p>rgb值：<span id="color-text"> - </span></p>
+    </div>
+
+    <script type="text/javascript">
+      const hsvInfo = {h: 0, s: 0, v: 0};
+      // 输入数组类型的
+      function transHsvToRgb({h=0,s=0,v=0}) {
+        const h0 = Math.floor(h/60)%6;
+        const f = h/60 - h0;
+        const p = v * (1 - s);
+        const q = v * (1 - (f*s));
+        const t = v * (1 - ((1-f) * s));
+        var result = null;
+        switch (h0) {
+          case 0:
+            result = [v, t, p];
+            break;
+          case 1:
+            result = [q, v, p];
+            break;
+          case 2:
+            result =  [p, v, t];
+            break;
+          case 3:
+            result =  [p, q, v];
+            break;
+          case 4:
+            result =  [t, p, v];
+            break;
+          case 5:
+            result =  [v, p, q];
+            break;
+          default:
+            result =  [0, 0, 0];
+        }
+        const rgbValues = result.map(i => (i.toFixed(1) * 255));
+        /// 设置字体颜色
+        setColor(rgbValues);
+        /// 字体颜色设置完毕
+        return rgbValues;
+      }
+      function setColor([r, g, b]) {
+        const color = `rgb(${r}, ${g}, ${b})`;
+        document.getElementById('show-color').style.color = color;
+        document.getElementById('color-panel').style.backgroundColor = color;
+        document.getElementById('color-text').innerText = color;
+      }
+
+      const inputs = [...document.querySelectorAll('input')];
+      inputs.forEach(node => {
+        node.onchange = colorChange.bind(this, node.name);
+      });
+
+      function colorChange(name, e) {
+        hsvInfo[name] = +e.target.value;
+        transHsvToRgb(hsvInfo);
+      }
+
+      // input
+
+      transHsvToRgb(hsvInfo);
+    </script>
+  </body>
+</html>
